@@ -15,15 +15,12 @@ class LoadingButton @JvmOverloads constructor(
 
 	private val valueAnimator = ValueAnimator()
 
-	private var buttonState: ButtonState by Delegates.observable<ButtonState>(ButtonState.Completed) { p, old, new ->
-
+	private var buttonState: ButtonState by Delegates.observable(ButtonState.Completed) { p, old, new ->
 	}
-
 
 	init {
 
 	}
-
 
 	override fun onDraw(canvas: Canvas?) {
 		super.onDraw(canvas)
@@ -42,5 +39,4 @@ class LoadingButton @JvmOverloads constructor(
 		heightSize = h
 		setMeasuredDimension(w, h)
 	}
-
 }
