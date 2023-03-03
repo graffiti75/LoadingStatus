@@ -29,29 +29,20 @@
 
         <RadioButton
             android:id="@+id/firstRadioButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:checked="false"
-            android:text="@string/radio_button_first"
-            android:textSize="20sp" />
+            style="@style/RadioButtonStyle"
+            android:text="@string/radio_button_first" />
 
         <RadioButton
             android:id="@+id/secondRadioButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            style="@style/RadioButtonStyle"
             android:layout_marginTop="20dp"
-            android:checked="false"
-            android:text="@string/radio_button_second"
-            android:textSize="20sp" />
+            android:text="@string/radio_button_second" />
 
         <RadioButton
             android:id="@+id/thirdRadioButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            style="@style/RadioButtonStyle"
             android:layout_marginTop="20dp"
-            android:checked="false"
-            android:text="@string/radio_button_third"
-            android:textSize="20sp" />
+            android:text="@string/radio_button_third" />
     </RadioGroup>
 
     <androidx.appcompat.widget.AppCompatButton

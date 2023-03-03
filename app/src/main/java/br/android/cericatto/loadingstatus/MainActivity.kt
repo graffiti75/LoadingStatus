@@ -9,6 +9,7 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.net.Uri
 import android.os.Bundle
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.NotificationCompat
 import kotlinx.android.synthetic.main.activity_main.*
@@ -28,13 +29,24 @@ class MainActivity : AppCompatActivity() {
         registerReceiver(receiver, IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE))
 
         customButton.setOnClickListener {
-            download()
+            checkRadioButtons()
         }
     }
 
     private val receiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
             val id = intent?.getLongExtra(DownloadManager.EXTRA_DOWNLOAD_ID, -1)
+        }
+    }
+
+    private fun checkRadioButtons() {
+        val first = firstRadioButton.isChecked
+        val second = secondRadioButton.isChecked
+        val third = thirdRadioButton.isChecked
+        if (!first && !second && !third) {
+            Toast.makeText(this, getString(R.string.select_radio_button), Toast.LENGTH_LONG).show()
+        } else {
+            download()
         }
     }
 
