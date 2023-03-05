@@ -2,20 +2,42 @@ package br.android.cericatto.loadingstatus
 
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
-import kotlinx.android.synthetic.main.activity_detail.*
+import br.android.cericatto.loadingstatus.databinding.ActivityDetailBinding
 
 class DetailActivity : AppCompatActivity() {
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_detail)
+	private lateinit var binding: ActivityDetailBinding
 
-        initButtonListeners()
-    }
+	private var fileName = ""
+	private var status = ""
 
-    private fun initButtonListeners() {
-        okButton.setOnClickListener {
-            finish()
-        }
-    }
+	override fun onCreate(savedInstanceState: Bundle?) {
+		super.onCreate(savedInstanceState)
+		binding = ActivityDetailBinding.inflate(layoutInflater)
+		setContentView(binding.root)
+
+		initButtonListeners()
+		initExtras()
+	}
+
+	private fun initButtonListeners() {
+		binding.okButton.setOnClickListener {
+			finish()
+		}
+	}
+
+	private fun initExtras() {
+		binding.apply {
+			fileName = intent.getStringExtra(MainActivity.FILE_NAME).toString()
+			status = intent.getStringExtra(MainActivity.STATUS).toString()
+			fileNameTextView.text = fileName
+			statusTextView.text = status
+
+			if (status == getString(R.string.status_failed)) {
+				statusTextView.setTextColor(getColor(R.color.red_500))
+			} else {
+//				statusTextView.setTextColor(null)
+			}
+		}
+	}
 }

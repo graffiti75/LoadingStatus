@@ -14,14 +14,13 @@ import android.os.Build
 import android.os.Bundle
 import android.os.Environment
 import android.provider.Settings
-import android.util.Log
 import android.view.View
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
+import br.android.cericatto.loadingstatus.databinding.ActivityMainBinding
 import com.google.android.material.snackbar.Snackbar
-import kotlinx.android.synthetic.main.activity_main.*
 
 enum class Urls(val url: String) {
     GLIDE("https://github.com/bumptech/glide"),
@@ -32,6 +31,8 @@ enum class Urls(val url: String) {
 }
 
 class MainActivity : AppCompatActivity() {
+
+    private lateinit var binding: ActivityMainBinding
 
     companion object {
         const val REQUEST_CODE = 10
@@ -68,7 +69,8 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
+        binding = ActivityMainBinding.inflate(layoutInflater)
+        setContentView(binding.root)
 
         checkAndroidApiVersion()
         initButtonListeners()
@@ -87,11 +89,11 @@ class MainActivity : AppCompatActivity() {
     //--------------------------------------------------
 
     private fun initButtonListeners() {
-        customButton.setOnClickListener {
+        binding.customButton.setOnClickListener {
             checkRadioButtons()
         }
 
-        radioGroup.setOnCheckedChangeListener {  group, checkedId ->
+        binding.radioGroup.setOnCheckedChangeListener {  group, checkedId ->
             when (checkedId) {
                 R.id.firstRadioButton -> {
                     currentUrl = Urls.GLIDE.url
@@ -107,9 +109,9 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun checkRadioButtons() {
-        val first = firstRadioButton.isChecked
-        val second = secondRadioButton.isChecked
-        val third = thirdRadioButton.isChecked
+        val first = binding.firstRadioButton.isChecked
+        val second = binding.secondRadioButton.isChecked
+        val third = binding.thirdRadioButton.isChecked
         if (!first && !second && !third) {
             Toast.makeText(this, getString(R.string.select_radio_button), Toast.LENGTH_LONG).show()
         } else {
@@ -122,16 +124,18 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun updateConnectionStatus(connected: Boolean) {
-        if (connected) {
-            customButton.visibility = View.VISIBLE
-            radioGroup.visibility = View.VISIBLE
-            downloadImageView.visibility = View.VISIBLE
-            connectionImageView.visibility = View.GONE
-        } else {
-            customButton.visibility = View.GONE
-            radioGroup.visibility = View.GONE
-            downloadImageView.visibility = View.GONE
-            connectionImageView.visibility = View.VISIBLE
+        binding.apply {
+            if (connected) {
+                customButton.visibility = View.VISIBLE
+                radioGroup.visibility = View.VISIBLE
+                downloadImageView.visibility = View.VISIBLE
+                connectionImageView.visibility = View.GONE
+            } else {
+                customButton.visibility = View.GONE
+                radioGroup.visibility = View.GONE
+                downloadImageView.visibility = View.GONE
+                connectionImageView.visibility = View.VISIBLE
+            }
         }
     }
 
@@ -144,15 +148,17 @@ class MainActivity : AppCompatActivity() {
             if (notificationPermissionEnabled()) {
                 visibility = View.GONE
             } else {
-                customButton.visibility = View.GONE
+                binding.customButton.visibility = View.GONE
             }
         }
-        requestPermissionButton.visibility = visibility
+        binding.requestPermissionButton.visibility = visibility
     }
 
     private fun hidePermissionButton() {
-        customButton.visibility = View.VISIBLE
-        requestPermissionButton.visibility = View.GONE
+        binding.apply {
+            customButton.visibility = View.VISIBLE
+            requestPermissionButton.visibility = View.GONE
+        }
     }
 
     //--------------------------------------------------
@@ -178,7 +184,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun requestPermissionListener() {
         val notificationPermission = Manifest.permission.POST_NOTIFICATIONS
-        requestPermissionButton.setOnClickListener {
+        binding.requestPermissionButton.setOnClickListener {
             when {
                 shouldShowRequestPermissionRationale(notificationPermission) -> {
                     showSnackBar()
@@ -314,8 +320,8 @@ class MainActivity : AppCompatActivity() {
                     DownloadManager.STATUS_SUCCESSFUL -> {
                         progress = 100
                         finishDownload = true
-                        sendNotification()
                         status = getString(R.string.status_success)
+                        sendNotification()
                     }
                 }
             }
@@ -324,20 +330,20 @@ class MainActivity : AppCompatActivity() {
 
     private fun statusRunning(cursor: Cursor, progress: Int): Int {
         var currentProgress = progress
-        Log.i("udacity", "----- Running -----")
+//        Log.i("udacity", "----- Running -----")
         val columnTotalSizeBytes = DownloadManager.COLUMN_TOTAL_SIZE_BYTES
         val columnBytesDownloadedSoFar = DownloadManager.COLUMN_BYTES_DOWNLOADED_SO_FAR
         val total = cursor.getLong(cursor.getColumnIndex(columnTotalSizeBytes))
-        Log.i("udacity", "Total: $total")
+//        Log.i("udacity", "Total: $total")
         if (total >= 0) {
             val downloaded = cursor.getLong(cursor.getColumnIndex(columnBytesDownloadedSoFar))
-            Log.i("udacity", "Downladed: $downloaded")
+//            Log.i("udacity", "Downladed: $downloaded")
             currentProgress = (downloaded * 100L / total).toInt()
             // If you use downloadmanger in async task, here you can use like this to display
             // progress. Don't forget to do the division in long to get more digits rather than
             // double.
             // publishProgress((int) ((downloaded * 100L) / total));
-            Log.i("udacity", "Progress: $progress")
+//            Log.i("udacity", "Progress: $progress")
         }
         return currentProgress
     }
