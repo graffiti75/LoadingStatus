@@ -2,6 +2,7 @@
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/parentLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".MainActivity">
@@ -22,10 +23,12 @@
         android:layout_height="0dp"
         android:gravity="center_vertical"
         android:padding="10dp"
-        app:layout_constraintBottom_toTopOf="@+id/customButton"
+        app:layout_constraintBottom_toTopOf="@+id/requestPermissionButton"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/downloadImageView">
+        app:layout_constraintTop_toBottomOf="@+id/downloadImageView"
+        app:layout_constraintVertical_bias="0.0">
 
         <RadioButton
             android:id="@+id/firstRadioButton"
@@ -46,26 +49,23 @@
     </RadioGroup>
 
     <androidx.appcompat.widget.AppCompatButton
-        android:id="@+id/customButton"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="20dp"
-        android:layout_marginTop="20dp"
-        android:layout_marginEnd="20dp"
-        android:layout_marginBottom="20dp"
-        android:background="@color/colorBackgroundButton"
-        android:paddingStart="5dp"
+        android:id="@+id/requestPermissionButton"
+        style="@style/ButtonStyle"
         android:paddingTop="20dp"
-        android:paddingEnd="5dp"
-        android:paddingBottom="20dp"
-        android:text="Download"
-        android:textAllCaps="false"
-        android:textColor="@color/white"
-        android:textSize="20sp"
-        app:layout_constraintBottom_toBottomOf="parent"
+        android:text="@string/request_permission"
+        app:layout_constraintBottom_toTopOf="@+id/customButton"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/radioGroup" />
+
+    <androidx.appcompat.widget.AppCompatButton
+        android:id="@+id/customButton"
+        style="@style/ButtonStyle"
+        android:text="@string/download"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/requestPermissionButton" />
 
     <ImageView
         android:id="@+id/connectionImageView"

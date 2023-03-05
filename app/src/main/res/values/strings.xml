@@ -15,4 +15,14 @@
     <string name="radio_button_second">Load App - Current repository by Udacity</string>
     <string name="radio_button_third">Retrofit - Type-safe HTTP client for Android and Java by Square, Inc</string>
     <string name="select_radio_button">Please select at least one option</string>
+
+    <string name="download">Download</string>
+    <string name="download_completed">Download Completed</string>
+
+    <string name="permission_explanation">In order to show notifications in this app, you need to allow this permission.</string>
+    <string name="request_permission">Request Notification Permission</string>
+    <string name="snooze">Snooze</string>
+    <string name="notification_channel_id" translatable="false">notification_channel</string>
+    <string name="notification_channel_name">Notification</string>
+    <string name="notification_blocked">Notification blocked</string>
 </resources>
