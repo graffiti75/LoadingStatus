@@ -4,6 +4,7 @@ import android.Manifest
 import android.app.DownloadManager
 import android.app.NotificationChannel
 import android.app.NotificationManager
+import android.app.PendingIntent
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.database.Cursor
@@ -32,9 +33,16 @@ enum class Urls(val url: String) {
 
 class MainActivity : AppCompatActivity() {
 
+    companion object {
+        const val REQUEST_CODE = 10
+        const val FILE_NAME = "file_name"
+        const val STATUS = "status"
+    }
+
     private lateinit var notificationManager: NotificationManager
     private var downloadID: Long = 0
     private var currentUrl = ""
+    private var status = ""
 
     /**
      * Source:
@@ -229,27 +237,48 @@ class MainActivity : AppCompatActivity() {
     private fun sendNotification() {
         if (notificationPermissionEnabled()) {
             notificationManager.sendNotification(
-                getText(R.string.download_completed).toString(),
-                this
+                getString(R.string.download_completed),
+                applicationContext,
+                createPendingIntent()
             )
         }
+    }
+
+    private fun createPendingIntent() : PendingIntent {
+        var intentFlagTypeUpdateCurrent = PendingIntent.FLAG_UPDATE_CURRENT
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            intentFlagTypeUpdateCurrent = PendingIntent.FLAG_IMMUTABLE
+        }
+
+        val contentIntent = Intent(applicationContext, DetailActivity::class.java)
+        contentIntent.putExtra(FILE_NAME, getFileName())
+        contentIntent.putExtra(STATUS, status)
+        return PendingIntent.getActivity(
+            applicationContext,
+            REQUEST_CODE,
+            contentIntent,
+            intentFlagTypeUpdateCurrent
+        )
     }
 
     //--------------------------------------------------
     // Download Manager Methods
     //--------------------------------------------------
 
+    private fun getFileName() : String {
+        val text = currentUrl.split("/")
+        return text[text.size - 1]
+    }
+
     /**
      * Source:
      * https://medium.com/@aungkyawmyint_26195/downloading-file-properly-in-android-d8cc28d25aca
      */
     private fun download() {
-        val text = currentUrl.split("/")
-        val title = text[text.size - 1]
         val request = DownloadManager.Request(Uri.parse(currentUrl))
             .setNotificationVisibility(DownloadManager.Request.VISIBILITY_HIDDEN)
             .setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, "udacity")
-            .setTitle(title)
+            .setTitle(getFileName())
             .setDescription(getString(R.string.app_description))
             .setRequiresCharging(false)
             .setAllowedOverMetered(true)
@@ -271,10 +300,11 @@ class MainActivity : AppCompatActivity() {
                 downloadID)
             )
             if (cursor.moveToFirst()) {
-                val status = cursor.getInt(cursor.getColumnIndex(DownloadManager.COLUMN_STATUS))
-                when (status) {
+                val columnStatus = cursor.getInt(cursor.getColumnIndex(DownloadManager.COLUMN_STATUS))
+                when (columnStatus) {
                     DownloadManager.STATUS_FAILED -> {
                         finishDownload = true
+                        status = getString(R.string.status_failed)
                     }
                     DownloadManager.STATUS_PAUSED -> {}
                     DownloadManager.STATUS_PENDING -> {}
@@ -285,6 +315,7 @@ class MainActivity : AppCompatActivity() {
                         progress = 100
                         finishDownload = true
                         sendNotification()
+                        status = getString(R.string.status_success)
                     }
                 }
             }

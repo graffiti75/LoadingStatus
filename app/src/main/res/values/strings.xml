@@ -21,8 +21,11 @@
 
     <string name="permission_explanation">In order to show notifications in this app, you need to allow this permission.</string>
     <string name="request_permission">Request Notification Permission</string>
-    <string name="snooze">Snooze</string>
+    <string name="details">Details</string>
     <string name="notification_channel_id" translatable="false">notification_channel</string>
     <string name="notification_channel_name">Notification</string>
     <string name="notification_blocked">Notification blocked</string>
+
+    <string name="status_success">Success</string>
+    <string name="status_failed">Failed</string>
 </resources>
