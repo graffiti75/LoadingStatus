@@ -14,21 +14,14 @@ import android.os.Build
 import android.os.Bundle
 import android.os.Environment
 import android.provider.Settings
+import android.view.Gravity
 import android.view.View
-import android.widget.Toast
+import android.widget.FrameLayout
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import br.android.cericatto.loadingstatus.databinding.ActivityMainBinding
 import com.google.android.material.snackbar.Snackbar
-
-enum class Urls(val url: String) {
-    GLIDE("https://github.com/bumptech/glide"),
-    LOAD_APP("https://github.com/udacity/nd940-c3-advanced-android-programming-project-starter"),
-    RETROFIT("https://github.com/square/retrofit"),
-    TEST("https://drive.google.com/u/0/uc?id=0B7-BCrhhCGUsR1JCV245aXp6QVk" +
-        "&export=download&resourcekey=0-bAKkWj8f99fa_rMFanGPiQ")
-}
 
 class MainActivity : AppCompatActivity() {
 
@@ -55,11 +48,7 @@ class MainActivity : AppCompatActivity() {
         if (isGranted) {
             hidePermissionButton()
         } else {
-            // Explain to the user that the feature is unavailable because the features requires
-            // a permission that the user has denied. At the same time, respect the user's decision.
-            // Don't link to system settings in an effort to convince the user to change their
-            // decision.
-            Toast.makeText(this, getText(R.string.permission_explanation), Toast.LENGTH_LONG).show()
+            showTopSnackBar(getString(R.string.permission_explanation))
         }
     }
 
@@ -89,35 +78,69 @@ class MainActivity : AppCompatActivity() {
     //--------------------------------------------------
 
     private fun initButtonListeners() {
+        if (radioButtonsAreNotChecked()) {
+            binding.customButton.isEnabled = false
+            showTopSnackBar()
+        }
+
         binding.customButton.setOnClickListener {
-            checkRadioButtons()
+            checkDownloadConditions()
         }
 
         binding.radioGroup.setOnCheckedChangeListener {  group, checkedId ->
+            var checked = false
             when (checkedId) {
                 R.id.firstRadioButton -> {
-                    currentUrl = Urls.GLIDE.url
+                    currentUrl = UrlState.GLIDE.url
+                    checked = true
                 }
                 R.id.secondRadioButton -> {
-                    currentUrl = Urls.LOAD_APP.url
+                    currentUrl = UrlState.LOAD_APP.url
+                    checked = true
                 }
                 R.id.thirdRadioButton -> {
-                    currentUrl = Urls.RETROFIT.url
+                    currentUrl = UrlState.RETROFIT.url
+                    checked = true
                 }
             }
+            if (checked)
+                binding.customButton.isEnabled = true
         }
     }
 
-    private fun checkRadioButtons() {
+    private fun radioButtonsAreNotChecked() : Boolean {
         val first = binding.firstRadioButton.isChecked
         val second = binding.secondRadioButton.isChecked
         val third = binding.thirdRadioButton.isChecked
-        if (!first && !second && !third) {
-            Toast.makeText(this, getString(R.string.select_radio_button), Toast.LENGTH_LONG).show()
+        return !first && !second && !third
+    }
+
+    private fun showTopSnackBar() {
+        showTopSnackBar(getString(R.string.select_radio_button))
+    }
+
+    private fun showTopSnackBar(text: String) {
+        val snack = Snackbar.make(
+            findViewById(R.id.parentLayout),
+            text,
+            Snackbar.LENGTH_LONG
+        )
+        val view = snack.view
+        val params = view.layoutParams as FrameLayout.LayoutParams
+        params.gravity = Gravity.TOP
+        view.layoutParams = params
+        view.setBackgroundColor(getColor(R.color.grey_500))
+        snack.show()
+    }
+
+    private fun checkDownloadConditions() {
+        if (radioButtonsAreNotChecked()) {
+            showTopSnackBar()
         } else {
             val isConnected = isNetworkConnected()
             updateConnectionStatus(isConnected)
             if (isConnected) {
+                binding.customButton.isEnabled = false
                 download()
             }
         }
@@ -187,7 +210,7 @@ class MainActivity : AppCompatActivity() {
         binding.requestPermissionButton.setOnClickListener {
             when {
                 shouldShowRequestPermissionRationale(notificationPermission) -> {
-                    showSnackBar()
+                    showSettingsSnackBar()
                 }
                 else -> {
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
@@ -204,7 +227,7 @@ class MainActivity : AppCompatActivity() {
         return permissionStatus == PackageManager.PERMISSION_GRANTED
     }
 
-    private fun showSnackBar() {
+    private fun showSettingsSnackBar() {
         Snackbar.make(
             findViewById(R.id.parentLayout),
             getText(R.string.notification_blocked),
@@ -226,9 +249,9 @@ class MainActivity : AppCompatActivity() {
                 channelName,
                 NotificationManager.IMPORTANCE_HIGH
             )
-            .apply {
-                setShowBadge(false)
-            }
+                .apply {
+                    setShowBadge(false)
+                }
 
             notificationChannel.enableLights(true)
             notificationChannel.lightColor = Color.RED
@@ -242,6 +265,8 @@ class MainActivity : AppCompatActivity() {
 
     private fun sendNotification() {
         if (notificationPermissionEnabled()) {
+
+
             notificationManager.sendNotification(
                 getString(R.string.download_completed),
                 applicationContext,
@@ -311,6 +336,7 @@ class MainActivity : AppCompatActivity() {
                     DownloadManager.STATUS_FAILED -> {
                         finishDownload = true
                         status = getString(R.string.status_failed)
+                        binding.customButton.isEnabled = true
                     }
                     DownloadManager.STATUS_PAUSED -> {}
                     DownloadManager.STATUS_PENDING -> {}
@@ -321,6 +347,7 @@ class MainActivity : AppCompatActivity() {
                         progress = 100
                         finishDownload = true
                         status = getString(R.string.status_success)
+                        binding.customButton.isEnabled = true
                         sendNotification()
                     }
                 }
@@ -330,20 +357,12 @@ class MainActivity : AppCompatActivity() {
 
     private fun statusRunning(cursor: Cursor, progress: Int): Int {
         var currentProgress = progress
-//        Log.i("udacity", "----- Running -----")
         val columnTotalSizeBytes = DownloadManager.COLUMN_TOTAL_SIZE_BYTES
         val columnBytesDownloadedSoFar = DownloadManager.COLUMN_BYTES_DOWNLOADED_SO_FAR
         val total = cursor.getLong(cursor.getColumnIndex(columnTotalSizeBytes))
-//        Log.i("udacity", "Total: $total")
         if (total >= 0) {
             val downloaded = cursor.getLong(cursor.getColumnIndex(columnBytesDownloadedSoFar))
-//            Log.i("udacity", "Downladed: $downloaded")
             currentProgress = (downloaded * 100L / total).toInt()
-            // If you use downloadmanger in async task, here you can use like this to display
-            // progress. Don't forget to do the division in long to get more digits rather than
-            // double.
-            // publishProgress((int) ((downloaded * 100L) / total));
-//            Log.i("udacity", "Progress: $progress")
         }
         return currentProgress
     }

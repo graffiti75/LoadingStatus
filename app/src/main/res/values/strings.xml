@@ -31,4 +31,5 @@
     <string name="file_name">File name:</string>
     <string name="status">Status:</string>
     <string name="ok">OK</string>
+    <string name="loading">We are loading</string>
 </resources>
