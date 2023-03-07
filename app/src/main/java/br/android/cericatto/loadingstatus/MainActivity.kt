@@ -265,8 +265,6 @@ class MainActivity : AppCompatActivity() {
 
     private fun sendNotification() {
         if (notificationPermissionEnabled()) {
-
-
             notificationManager.sendNotification(
                 getString(R.string.download_completed),
                 applicationContext,
