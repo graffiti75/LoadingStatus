@@ -305,8 +305,8 @@ class MainActivity : AppCompatActivity() {
      */
     private fun download() {
         val request = DownloadManager.Request(Uri.parse(currentUrl))
-            .setNotificationVisibility(DownloadManager.Request.VISIBILITY_HIDDEN)
-            .setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, "udacity")
+//            .setNotificationVisibility(DownloadManager.Request.VISIBILITY_HIDDEN)
+//            .setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, "udacity")
             .setTitle(getFileName())
             .setDescription(getString(R.string.app_description))
             .setRequiresCharging(false)
